@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Security LMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .video-container {
+            background: #2c3e50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+        .video-placeholder {
+            background: #34495e;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            margin: 15px 0;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .video-embed {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 8px;
+        }
+        .test-interface {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+        }
+        .option {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+        .option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .video-instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <h1>✈️ Aviation Security LMS</h1>
+            </div>
+            <div class="user-info">
+                <span id="userName">User</span>
+                <div class="user-menu">
+                    <button class="btn btn-primary" onclick="toggleUserMenu()">
+                        <span id="currentUser">User</span> ▼
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="viewProfile()">My Profile</a>
+                        <a href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul class="nav-tabs">
+                <li class="active" onclick="switchTab('dashboard')">Dashboard</li>
+                <li onclick="switchTab('courses')">Training Courses</li>
+                <li onclick="switchTab('tests')">Certification Tests</li>
+                <li onclick="switchTab('progress')">My Progress</li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Training Dashboard</h2>
+            <div class="stats-grid" id="dashboardStats">
+                <!-- Stats loaded by JavaScript -->
+            </div>
+            
+            <h3>My Current Training</h3>
+            <div class="course-grid" id="currentTraining">
+                <!-- Current courses loaded by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Courses Tab -->
+        <div id="courses" class="tab-content">
+            <h2>Available Training Courses</h2>
+            <div class="course-grid" id="coursesList">
+                <!-- Courses loaded by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Course Detail View -->
+        <div id="courseDetail" class="tab-content" style="display: none;">
+            <h2 id="courseDetailTitle">Course Title</h2>
+            <button class="btn btn-secondary" onclick="backToCourses()">← Back to Courses</button>
+            
+            <div class="video-container">
+                <h3>Training Video</h3>
+                
+                <div class="video-instructions">
+                    <h4>📺 How to Watch Training Videos:</h4>
+                    <p><strong>Option 1:</strong> Watch embedded video below (if available)</p>
+                    <p><strong>Option 2:</strong> Click the external link to watch on YouTube</p>
+                    <p><strong>Option 3:</strong> Contact your instructor for video materials</p>
+                </div>
+                
+                <div id="videoPlayer">
+                    <!-- Video player will be loaded here -->
+                </div>
+                
+                <div id="videoLinks" style="margin-top: 15px;">
+                    <!-- External video links will appear here -->
+                </div>
+                
+                <div id="videoControls" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="markVideoWatched()">✅ Mark Video as Watched</button>
+                    <small style="display: block; margin-top: 10px; color: #bdc3c7;">Click this after watching the video to track your progress</small>
+                </div>
+            </div>
+            
+            <div class="course-content" style="margin-top: 30px;">
+                <h3>Course Content</h3>
+                <div id="courseContentText">
+                    <!-- Course content loaded by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="course-actions" style="margin-top: 30px;">
+                <button class="btn btn-success" onclick="completeCourse()">🎓 Mark Course as Completed</button>
+                <p><small>Complete all course materials before marking as completed</small></p>
+            </div>
+        </div>
+        
+        <!-- Tests Tab -->
+        <div id="tests" class="tab-content">
+            <h2>Certification Tests</h2>
+            <div class="course-grid" id="testsList">
+                <!-- Tests loaded by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Test Interface -->
+        <div id="testInterface" class="tab-content" style="display: none;">
+            <h2 id="testTitle">Test Title</h2>
+            <div class="test-info">
+                <p>Time Limit: <span id="testTimeLimit">30</span> minutes | Passing Score: <span id="testPassingScore">70</span>%</p>
+            </div>
+            <button class="btn btn-secondary" onclick="backToTests()">← Back to Tests</button>
+            
+            <div id="testQuestionsContainer" class="test-interface">
+                <!-- Questions loaded by JavaScript -->
+            </div>
+            
+            <div class="test-actions">
+                <button class="btn btn-primary" onclick="submitTest()">Submit Test</button>
+                <button class="btn btn-secondary" onclick="backToTests()">Cancel Test</button>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div id="testResults" class="tab-content" style="display: none;">
+            <h2>Test Results</h2>
+            <div id="resultsContent">
+                <!-- Results loaded by JavaScript -->
+            </div>
+            <button class="btn btn-primary" onclick="backToTests()">Back to Tests</button>
+        </div>
+        
+        <!-- Progress Tab -->
+        <div id="progress" class="tab-content">
+            <h2>My Progress</h2>
+            <div class="stats-grid" id="progressStats">
+                <!-- Progress stats loaded by JavaScript -->
+            </div>
+            
+            <h3>Completed Courses</h3>
+            <div id="completedCourses">
+                <!-- Completed courses loaded by JavaScript -->
+            </div>
+
+            <h3>Test Results History</h3>
+            <div class="admin-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Date Completed</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsHistory">
+                        <!-- Results history loaded by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = null;
+        let courses = [];
+        let tests = [];
+        let userProgress = {};
+        let currentCourseId = null;
+
+        // Initialize user dashboard
+        function initializeUserDashboard() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Show admin link if user is admin
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminLink').style.display = 'block';
+            }
+
+            // Load data
+            courses = JSON.parse(localStorage.getItem('lms_courses') || '[]');
+            tests = JSON.parse(localStorage.getItem('lms_tests') || '[]');
+            
+            // Load user progress
+            userProgress = JSON.parse(localStorage.getItem(`user_${currentUser.id}_progress`) || '{}');
+
+            // Update UI
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('currentUser').textContent = currentUser.name;
+
+            // Load all sections
+            loadDashboard();
+            loadCourses();
+            loadTests();
+            loadProgress();
+        }
+
+        function loadDashboard() {
+            const completedCourses = Object.values(userProgress).filter(p => p.completed).length;
+            const inProgressCourses = Object.values(userProgress).filter(p => p.progress > 0 && !p.completed).length;
+            const completedTests = Object.values(userProgress).filter(p => p.testScore).length;
+
+            // Update stats
+            document.getElementById('dashboardStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="number">${inProgressCourses}</div>
+                    <div class="label">Courses in Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${completedCourses}</div>
+                    <div class="label">Completed Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${completedTests}</div>
+                    <div class="label">Tests Completed</div>
+                </div>
+            `;
+
+            // Show current training
+            const currentTraining = courses.filter(course => 
+                userProgress[course.id] && !userProgress[course.id].completed
+            ).slice(0, 2);
+
+            document.getElementById('currentTraining').innerHTML = currentTraining.map(course => `
+                <div class="course-card">
+                    <div class="course-header">
+                        <h4>${course.name}</h4>
+                    </div>
+                    <div class="course-body">
+                        <p>${course.description}</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${userProgress[course.id]?.progress || 0}%"></div>
+                        </div>
+                        <p>Progress: ${userProgress[course.id]?.progress || 0}%</p>
+                    </div>
+                    <div class="course-footer">
+                        <button class="btn btn-primary" onclick="viewCourse(${course.id})">Continue</button>
+                    </div>
+                </div>
+            `).join('') || '<p>No courses in progress. <a href="#" onclick="switchTab(\'courses\')">Start a course</a>.</p>';
+        }
+
+        function loadCourses() {
+            document.getElementById('coursesList').innerHTML = courses.map(course => {
+                const progress = userProgress[course.id] || {};
+                return `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h4>${course.name}</h4>
+                        </div>
+                        <div class="course-body">
+                            <p>${course.description}</p>
+                            <p><strong>Duration:</strong> ${course.duration} hours</p>
+                            <p><strong>Category:</strong> ${course.category}</p>
+                            ${course.video ? '<p><strong>📹 Video Training Available</strong></p>' : ''}
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${progress.progress || 0}%"></div>
+                            </div>
+                            <p>Progress: ${progress.progress || 0}%</p>
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn btn-primary" onclick="viewCourse(${course.id})">
+                                ${progress.progress > 0 ? 'Continue' : 'Start'} Course
+                            </button>
+                            ${progress.completed ? '<span class="status-badge active">Completed</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewCourse(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            currentCourseId = courseId;
+
+            // Initialize progress if not exists
+            if (!userProgress[courseId]) {
+                userProgress[courseId] = { progress: 0, completed: false, started: new Date().toISOString() };
+            }
+
+            // Show course detail view
+            document.getElementById('courses').style.display = 'none';
+            document.getElementById('courseDetail').style.display = 'block';
+            
+            // Update course content
+            document.getElementById('courseDetailTitle').textContent = course.name;
+            document.getElementById('courseContentText').innerHTML = `
+                <p><strong>Description:</strong> ${course.description}</p>
+                <p><strong>Duration:</strong> ${course.duration} hours</p>
+                <p><strong>Category:</strong> ${course.category}</p>
+                <div class="content" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    ${course.content || 'Detailed course content will be provided here. Please review all materials carefully.'}
+                </div>
+            `;
+
+            // Handle video display
+            displayCourseVideo(course);
+            saveUserProgress();
+        }
+
+        function displayCourseVideo(course) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoLinks = document.getElementById('videoLinks');
+            
+            // Clear previous content
+            videoPlayer.innerHTML = '';
+            videoLinks.innerHTML = '';
+
+            if (course.video) {
+                // Check if it's a YouTube URL
+                if (course.video.includes('youtube.com') || course.video.includes('youtu.be')) {
+                    const videoId = extractYouTubeId(course.video);
+                    if (videoId) {
+                        // Create embedded player
+                        videoPlayer.innerHTML = `
+                            <iframe 
+                                class="video-embed"
+                                src="https://www.youtube.com/embed/${videoId}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        `;
+                    }
+                } else if (course.video.includes('vimeo.com')) {
+                    // Handle Vimeo videos
+                    const videoId = course.video.split('/').pop();
+                    videoPlayer.innerHTML = `
+                        <iframe 
+                            class="video-embed"
+                            src="https://player.vimeo.com/video/${videoId}" 
+                            frameborder="0" 
+                            allow="autoplay; fullscreen; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    `;
+                } else {
+                    // For direct video links or other platforms
+                    videoPlayer.innerHTML = `
+                        <div class="video-placeholder">
+                            <h4>🎬 Training Video Available</h4>
+                            <p>This course includes video training materials</p>
+                            <a href="${course.video}" target="_blank" class="btn btn-primary">
+                                📺 Watch Video Externally
+                            </a>
+                        </div>
+                    `;
+                }
+
+                // Always provide external link as backup
+                videoLinks.innerHTML = `
+                    <div style="background: #34495e; padding: 15px; border-radius: 5px;">
+                        <h4>🔗 Alternative Video Access:</h4>
+                        <p>If the video above doesn't work, use this link:</p>
+                        <a href="${course.video}" target="_blank" style="color: #3498db; word-break: break-all;">
+                            ${course.video}
+                        </a>
+                    </div>
+                `;
+            } else {
+                // No video available
+                videoPlayer.innerHTML = `
+                    <div class="video-placeholder">
+                        <h4>📚 Text-Based Training</h4>
+                        <p>This course focuses on reading materials and practical exercises</p>
+                        <p>Please review the course content below</p>
+                    </div>
+                `;
+            }
+        }
+
+        function extractYouTubeId(url) {
+            // Extract YouTube video ID from various URL formats
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : false;
+        }
+
+        function markVideoWatched() {
+            if (currentCourseId && userProgress[currentCourseId]) {
+                userProgress[currentCourseId].progress = Math.max(userProgress[currentCourseId].progress, 70);
+                userProgress[currentCourseId].videoWatched = true;
+                userProgress[currentCourseId].videoWatchedAt = new Date().toISOString();
+                saveUserProgress();
+                
+                alert('✅ Video marked as watched! Progress updated to 70%.');
+                loadDashboard();
+            }
+        }
+
+        function completeCourse() {
+            if (currentCourseId && userProgress[currentCourseId]) {
+                userProgress[currentCourseId].completed = true;
+                userProgress[currentCourseId].progress = 100;
+                userProgress[currentCourseId].completedAt = new Date().toISOString();
+                saveUserProgress();
+                
+                alert('🎓 Course marked as completed! Congratulations!');
+                backToCourses();
+            }
+        }
+
+        function backToCourses() {
+            document.getElementById('courseDetail').style.display = 'none';
+            document.getElementById('courses').style.display = 'block';
+            currentCourseId = null;
+            loadCourses();
+            loadDashboard();
+        }
+
+        function loadTests() {
+            document.getElementById('testsList').innerHTML = tests.map(test => {
+                const course = courses.find(c => c.id === test.courseId);
+                const userTestResult = userProgress[`test_${test.id}`];
+                
+                return `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h4>${test.name}</h4>
+                        </div>
+                        <div class="course-body">
+                            <p><strong>Course:</strong> ${course ? course.name : 'N/A'}</p>
+                            <p><strong>Questions:</strong> ${test.questions ? test.questions.length : 0}</p>
+                            <p><strong>Passing Score:</strong> ${test.passingScore}%</p>
+                            <p><strong>Time Limit:</strong> ${test.timeLimit} minutes</p>
+                            ${userTestResult ? `
+                                <p><strong>Your Score:</strong> ${userTestResult.score}%</p>
+                                <p><strong>Status:</strong> ${userTestResult.score >= test.passingScore ? 'PASSED' : 'FAILED'}</p>
+                            ` : ''}
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn btn-primary" onclick="startTest(${test.id})">
+                                ${userTestResult ? 'Retake Test' : 'Start Test'}
+                            </button>
+                            ${userTestResult ? `<button class="btn btn-secondary" onclick="viewTestResult(${test.id})">View Result</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<p>No tests available at the moment.</p>';
+        }
+
+        function startTest(testId) {
+            const test = tests.find(t => t.id === testId);
+            if (!test) return;
+
+            // Hide tests list and show test interface
+            document.getElementById('tests').style.display = 'none';
+            document.getElementById('testInterface').style.display = 'block';
+            
+            // Set test info
+            document.getElementById('testTitle').textContent = test.name;
+            document.getElementById('testTimeLimit').textContent = test.timeLimit;
+            document.getElementById('testPassingScore').textContent = test.passingScore;
+
+            // Load questions
+            const container = document.getElementById('testQuestionsContainer');
+            if (test.questions && test.questions.length > 0) {
+                container.innerHTML = test.questions.map((q, index) => `
+                    <div class="question">
+                        <h4>Question ${index + 1}: ${q.question}</h4>
+                        <div class="options">
+                            ${q.options.map((option, optIndex) => `
+                                <div class="option" onclick="selectAnswer(${index}, ${optIndex})" id="option-${index}-${optIndex}">
+                                    <input type="radio" name="question-${index}" value="${optIndex}" style="display: none;">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p>No questions available for this test.</p>';
+            }
+
+            // Store current test
+            window.currentTest = { id: testId, answers: [] };
+        }
+
+        function selectAnswer(questionIndex, answerIndex) {
+            // Remove selected class from all options in this question
+            const options = document.querySelectorAll(`.option[id^="option-${questionIndex}-"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            document.getElementById(`option-${questionIndex}-${answerIndex}`).classList.add('selected');
+            
+            // Store answer
+            if (window.currentTest) {
+                window.currentTest.answers[questionIndex] = answerIndex;
+            }
+        }
+
+        function submitTest() {
+            if (!window.currentTest) return;
+
+            const test = tests.find(t => t.id === window.currentTest.id);
+            if (!test.questions) {
+                alert('No questions available for this test.');
+                return;
+            }
+
+            let correctAnswers = 0;
+            const totalQuestions = test.questions.length;
+
+            test.questions.forEach((question, index) => {
+                if (window.currentTest.answers[index] === question.correctAnswer) {
+                    correctAnswers++;
+                }
+            });
+
+            const score = Math.round((correctAnswers / totalQuestions) * 100);
+            const passed = score >= test.passingScore;
+
+            // Save result
+            userProgress[`test_${test.id}`] = {
+                score: score,
+                passed: passed,
+                completedAt: new Date().toISOString(),
+                answers: window.currentTest.answers,
+                correctAnswers: correctAnswers,
+                totalQuestions: totalQuestions
+            };
+            saveUserProgress();
+
+            // Show results
+            showTestResults(test, score, passed, correctAnswers, totalQuestions);
+        }
+
+        function showTestResults(test, score, passed, correctAnswers, totalQuestions) {
+            document.getElementById('testInterface').style.display = 'none';
+            document.getElementById('testResults').style.display = 'block';
+
+            document.getElementById('resultsContent').innerHTML = `
+                <div class="course-card">
+                    <div class="course-header" style="background: ${passed ? '#27ae60' : '#e74c3c'}">
+                        <h4>Test ${passed ? 'Passed' : 'Failed'}</h4>
+                    </div>
+                    <div class="course-body">
+                        <p><strong>Test:</strong> ${test.name}</p>
+                        <p><strong>Your Score:</strong> ${score}%</p>
+                        <p><strong>Passing Score:</strong> ${test.passingScore}%</p>
+                        <p><strong>Correct Answers:</strong> ${correctAnswers} out of ${totalQuestions}</p>
+                        <p><strong>Status:</strong> <span style="color: ${passed ? 'green' : 'red'}; font-weight: bold;">
+                            ${passed ? 'PASSED - Congratulations! 🎉' : 'FAILED - Please review and try again'}
+                        </span></p>
+                        ${!passed ? `<p><em>You need ${test.passingScore}% to pass. You scored ${score}%.</em></p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function viewTestResult(testId) {
+            const result = userProgress[`test_${testId}`];
+            const test = tests.find(t => t.id === testId);
+            
+            if (result && test) {
+                document.getElementById('tests').style.display = 'none';
+                document.getElementById('testResults').style.display = 'block';
+                
+                document.getElementById('resultsContent').innerHTML = `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h4>Test Result: ${test.name}</h4>
+                        </div>
+                        <div class="course-body">
+                            <p><strong>Score:</strong> ${result.score}%</p>
+                            <p><strong>Date Completed:</strong> ${new Date(result.completedAt).toLocaleDateString()}</p>
+                            <p><strong>Correct Answers:</strong> ${result.correctAnswers} out of ${result.totalQuestions}</p>
+                            <p><strong>Status:</strong> ${result.passed ? 'PASSED' : 'FAILED'}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function backToTests() {
+            document.getElementById('testInterface').style.display = 'none';
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('tests').style.display = 'block';
+            loadTests();
+            loadProgress();
+        }
+
+        function loadProgress() {
+            const completedCourses = Object.keys(userProgress).filter(key => 
+                !key.startsWith('test_') && userProgress[key].completed
+            ).length;
+
+            const completedTests = Object.keys(userProgress).filter(key => 
+                key.startsWith('test_') && userProgress[key].score
+            ).length;
+
+            let totalScore = 0;
+            let testCount = 0;
+            
+            Object.keys(userProgress).forEach(key => {
+                if (key.startsWith('test_') && userProgress[key].score) {
+                    totalScore += userProgress[key].score;
+                    testCount++;
+                }
+            });
+
+            const averageScore = testCount > 0 ? Math.round(totalScore / testCount) : 0;
+
+            document.getElementById('progressStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="number">${completedCourses}</div>
+                    <div class="label">Courses Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${completedTests}</div>
+                    <div class="label">Tests Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${averageScore}%</div>
+                    <div class="label">Average Score</div>
+                </div>
+            `;
+
+            // Show completed courses
+            const completedCourseList = courses.filter(course => 
+                userProgress[course.id] && userProgress[course.id].completed
+            );
+
+            document.getElementById('completedCourses').innerHTML = completedCourseList.map(course => `
+                <div class="course-card">
+                    <div class="course-header" style="background: #27ae60">
+                        <h4>${course.name} ✓</h4>
+                    </div>
+                    <div class="course-body">
+                        <p>Completed on: ${new Date(userProgress[course.id].completedAt).toLocaleDateString()}</p>
+                        <button class="btn btn-secondary" onclick="viewCourse(${course.id})">Review Course</button>
+                    </div>
+                </div>
+            `).join('') || '<p>No courses completed yet.</p>';
+
+            // Show test history
+            const testResults = [];
+            Object.keys(userProgress).forEach(key => {
+                if (key.startsWith('test_')) {
+                    const testId = parseInt(key.replace('test_', ''));
+                    const test = tests.find(t => t.id === testId);
+                    if (test) {
+                        testResults.push({
+                            test: test,
+                            result: userProgress[key]
+                        });
+                    }
+                }
+            });
+
+            document.getElementById('resultsHistory').innerHTML = testResults.map(tr => `
+                <tr>
+                    <td>${tr.test.name}</td>
+                    <td>${new Date(tr.result.completedAt).toLocaleDateString()}</td>
+                    <td style="color: ${tr.result.passed ? 'green' : 'red'}; font-weight: bold;">${tr.result.score}%</td>
+                    <td><span class="status-badge ${tr.result.passed ? 'active' : 'inactive'}">${tr.result.passed ? 'Passed' : 'Failed'}</span></td>
+                </tr>
+            `).join('') || '<tr><td colspan="4">No test results yet.</td></tr>';
+        }
+
+        function saveUserProgress() {
+            localStorage.setItem(`user_${currentUser.id}_progress`, JSON.stringify(userProgress));
+        }
+
+        // Navigation functions
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.nav-tabs li').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabName).style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function viewProfile() {
+            alert(`User Profile:\n\nName: ${currentUser.name}\nUsername: ${currentUser.username}\nRole: ${currentUser.role}\nDepartment: ${currentUser.department}`);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initializeUserDashboard);
+    </script>
+</body>
+</html>
